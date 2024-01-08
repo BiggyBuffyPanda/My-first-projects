@@ -1,0 +1,236 @@
+package SnakeGame;
+
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.LinkedList;
+import java.util.Random;
+
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+// Definition der Klasse SimpleSnakeGame, die JPanel erweitert und ActionListener und KeyListener implementiert
+public class SimpleSnakeGame extends JPanel implements ActionListener, KeyListener {
+
+    // Konstanten für das Spielfeld
+    private final int B_WIDTH = 300;
+    private final int B_HEIGHT = 300;
+    private final int DOT_SIZE = 10;
+    private final int DELAY = 140;
+
+    // Liste für die Schlangenteile und Position des Apfels
+    private final LinkedList<Point> snake;
+    private Point apple;
+
+    // Richtungsvariablen und Spielstatus
+    private boolean leftDirection = false;
+    private boolean rightDirection = true;
+    private boolean upDirection = false;
+    private boolean downDirection = false;
+    private boolean iniateGame = true;
+
+    // Timer für die Aktualisierung des Spiels
+    private Timer timer;
+
+    // Konstruktor
+    public SimpleSnakeGame() {
+        snake = new LinkedList<>();
+        initiateGame();
+    }
+
+    // Initialisierung des Spiels
+    private void initiateGame() {
+        addKeyListener(this);
+        setBackground(Color.black);
+        setFocusable(true);
+        setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
+        createSnake();
+        createApple();
+        timer = new Timer(DELAY, this);
+        timer.start();
+    }
+
+    // Erstellung der Anfangsschlange
+    private void createSnake() {
+        for (int i = 3; i >= 1; i--) {
+            snake.add(new Point(i, 1));
+        }
+    }
+
+    // Erstellung des Apfels an zufälliger Position
+    private void createApple() {
+        Random rand = new Random();
+        int x = rand.nextInt(B_WIDTH / DOT_SIZE);
+        int y = rand.nextInt(B_HEIGHT / DOT_SIZE);
+        apple = new Point(x, y);
+    }
+
+    // Bewegung der Schlange und Aktualisierung des Spiels
+    private void move() {
+        Point head = snake.getFirst();
+        Point newHead = new Point(head.x, head.y);
+
+        if (leftDirection) {
+            newHead.x--;
+        } else if (rightDirection) {
+            newHead.x++;
+        } else if (upDirection) {
+            newHead.y--;
+        } else if (downDirection) {
+            newHead.y++;
+        }
+
+        checkCollision(newHead);
+        checkApple(newHead);
+
+        snake.addFirst(newHead);
+
+        if (snake.size() > snakeLength()) {
+            snake.removeLast();
+        }
+    }
+
+    // Überprüfung auf Kollision mit Spielfeldrand oder sich selbst
+    private void checkCollision(Point head) {
+        if (head.x < 0 || head.y < 0 || head.x >= B_WIDTH / DOT_SIZE || head.y >= B_HEIGHT / DOT_SIZE
+                || snake.contains(head)) {
+            iniateGame = false;
+            timer.stop();
+        }
+    }
+
+    // Überprüfung auf Verzehr des Apfels
+    private void checkApple(Point head) {
+        if (head.equals(apple)) {
+            createApple();
+        } else {
+            snake.removeLast();
+        }
+    }
+
+    // Bestimmt die Länge der Schlange (mindestens 3)
+    private int snakeLength() {
+        return Math.max(3, snake.size());
+    }
+
+    // Zeichnet die Grafik des Spiels
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        doDrawing(g);
+    }
+
+    // Zeichnet Schlange, Apfel oder das Spielende
+    private void doDrawing(Graphics g) {
+        if (iniateGame) {
+            drawSnake(g);
+            drawApple(g);
+            Toolkit.getDefaultToolkit().sync();
+        } else {
+            gameOver(g);
+        }
+    }
+
+    // Zeichnet die Schlange
+    private void drawSnake(Graphics g) {
+        g.setColor(Color.green);
+        for (Point point : snake) {
+            g.fillRect(point.x * DOT_SIZE, point.y * DOT_SIZE, DOT_SIZE, DOT_SIZE);
+        }
+    }
+
+    // Zeichnet den Apfel
+    private void drawApple(Graphics g) {
+        g.setColor(Color.red);
+        g.fillRect(apple.x * DOT_SIZE, apple.y * DOT_SIZE, DOT_SIZE, DOT_SIZE);
+    }
+
+    // Zeichnet das Spielende
+    private void gameOver(Graphics g) {
+        String msg = "Game Over";
+        Font small = new Font("Helvetica", Font.BOLD, 14);
+        FontMetrics metr = getFontMetrics(small);
+
+        g.setColor(Color.white);
+        g.setFont(small);
+        g.drawString(msg, (B_WIDTH - metr.stringWidth(msg)) / 2, B_HEIGHT / 2);
+    }
+
+    // Reaktion auf Timer-Ereignisse (Aktualisierung des Spiels)
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (iniateGame) {
+            move();
+            repaint();
+        }
+    }
+
+    // Reaktion auf Tastatureingaben
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int key = e.getKeyCode();
+
+        if ((key == KeyEvent.VK_LEFT) && (!rightDirection)) {
+            leftDirection = true;
+            upDirection = false;
+            downDirection = false;
+        }
+
+        if ((key == KeyEvent.VK_RIGHT) && (!leftDirection)) {
+            rightDirection = true;
+            upDirection = false;
+            downDirection = false;
+        }
+
+        if ((key == KeyEvent.VK_UP) && (!downDirection)) {
+            upDirection = true;
+            rightDirection = false;
+            leftDirection = false;
+        }
+
+        if ((key == KeyEvent.VK_DOWN) && (!upDirection)) {
+            downDirection = true;
+            rightDirection = false;
+            leftDirection = false;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        // not used
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // not used
+    }
+
+    // Interne Klasse für die Koordinatenpunkte (x, y)
+    private class Point {
+        int x, y;
+
+        Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null || getClass() != obj.getClass())
+                return false;
+            Point point = (Point) obj;
+            return x == point.x && y == point.y;
+        }
+    }
+}
