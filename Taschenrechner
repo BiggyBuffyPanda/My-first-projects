@@ -1,0 +1,71 @@
+package myfirstproject;
+import java.util.Scanner;
+
+public class Taschenrechner {
+
+	public static void main(String[] args) {
+		
+		Scanner scanner = new Scanner(System.in);
+		
+		System.out.print("Operator eingeben (+, -, /, *, %, ^, sqrt)/");
+		String operator = scanner.nextLine();
+		
+		System.out.println("Die erste Zahl: ");
+		double zahl1 = scanner.nextDouble();
+		double zahl2 = 0; 
+		
+		double ergebnis = 0;
+		
+		switch (operator) {
+		case "+":
+			System.out.println("Die zweite Zahl: ");
+			zahl2 = scanner.nextDouble();
+			ergebnis = zahl1 + zahl2;
+			break; 
+		case "-": 
+			System.out.println("Die zweite Zahl: ");
+			zahl2 = scanner.nextDouble();
+			ergebnis = zahl1 - zahl2;
+			break;
+		case "*":
+			System.out.println("Die zweite Zahl: ");
+			zahl2 = scanner.nextDouble();
+			ergebnis = zahl1 * zahl2; 
+			break;
+		case "/":
+			System.out.println("Die zweite Zahl: ");
+			zahl2 = scanner.nextDouble(); 
+			if (zahl2 != 0) {
+				ergebnis = zahl1 / zahl2;
+			} else {
+				System.out.println("Durch 0 teilen geht nicht");
+				System.exit(1);
+			}
+			break;
+		case "%":
+			System.out.println("Die zweite Zahl: ");
+			zahl2 = scanner.nextDouble();
+			ergebnis = (zahl1 * zahl2) / 100;
+			break;
+		case "^":
+			System.out.println("Die zweite Zahl: ");
+			zahl2 = scanner.nextDouble();
+			ergebnis = Math.pow(zahl1, zahl2);
+			break;
+		case "sqrt":
+			ergebnis = Math.sqrt(zahl1);
+			break;
+		  default: 
+		    System.out.println("Bitte gib einen Operator ein");
+		    System.exit(1);
+		
+		}
+		
+		if (ergebnis % 1 == 0) {
+			System.out.println("Ergebnis: " + (int) ergebnis);
+		} else {
+			System.out.println("Ergebnis: " + ergebnis);
+		}
+			
+	}
+}
