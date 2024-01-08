@@ -1,0 +1,18 @@
+package SnakeGame;
+
+import javax.swing.JFrame;
+
+public class SnakeGameStart {
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Simple Snake Game");
+        SimpleSnakeGame snakeGame = new SimpleSnakeGame();
+
+        frame.add(snakeGame);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+
+        snakeGame.requestFocusInWindow();
+    }
+}
